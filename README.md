@@ -13,7 +13,7 @@ A high-performance, strictly typed implementation of the [RealWorld](https://git
 - **Testcontainers** - Isolated database testing
 
 ## Prerequisites
-- **Rust 1.75+** ([install](https://rust-lang.org))
+- **Rust 1.91+** ([install](https://rust-lang.org))
 - **Docker** (for running PostgreSQL and integration tests)
 
 ## Getting Started
