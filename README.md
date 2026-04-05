@@ -1,6 +1,6 @@
 # 🦀 RealWorld Rust (Axum + SQLx)
 
-A high-performance, strictly typed implementation of the [RealWorld](https://github.com) backend specification.
+A high-performance, strictly typed implementation of the [RealWorld](https://github.com/realworld-apps/realworld/) backend specification.
 
 ## Tech Stack
 - **Axum** - Modern, ergonomic web framework
