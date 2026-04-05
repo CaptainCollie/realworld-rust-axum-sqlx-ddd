@@ -35,7 +35,7 @@ jobs:
         with:
           auth: ${{ secrets.GIST_TOKEN }}
           gistID: 02c38543ff4eaac85073d678de8da865
-          filename: coverage.json
+          filename: gistfile1.txt
           label: Coverage
           message: ${{ env.COVERAGE_PERCENT }}%
           valColorRange: ${{ env.COVERAGE_PERCENT }}
