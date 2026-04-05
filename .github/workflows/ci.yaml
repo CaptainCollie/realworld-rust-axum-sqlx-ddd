@@ -1,0 +1,20 @@
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Generate Code Coverage
+        run: |
+          cargo tarpaulin --ignore-tests --exclude-files src/main.rs src/lib.rs --out Lcov
+          PERCENT=$(cargo tarpaulin --ignore-tests --exclude-files src/main.rs src/lib.rs | grep -oP '\d+\.\d+(?=% coverage)' | tail -1)
+          echo "COVERAGE_PERCENT=$PERCENT" >> $GITHUB_ENV
+        env:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: 02c38543ff4eaac85073d678de8da865
+          SQLX_OFFLINE: true
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-key-12345' }}
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: lcov.info
+          fail_ci_if_error: true

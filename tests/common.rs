@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use axum_test::TestServer;
 use chrono::DateTime;
 use chrono::Utc;
@@ -19,7 +20,6 @@ use serde_json::Value;
 use serde_json::json;
 use std::sync::Arc;
 use std::sync::Once;
-use testcontainers::bollard::plugin::TaskSpecPluginSpec;
 use testcontainers::runners::AsyncRunner;
 use testcontainers_modules::postgres::Postgres;
 
