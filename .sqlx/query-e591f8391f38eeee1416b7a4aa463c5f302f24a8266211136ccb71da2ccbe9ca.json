@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                c.id, c.created_at, c.updated_at, c.body,\n                u.username AS author_username, u.bio AS author_bio, u.image AS author_image,\n                COALESCE(f.follower_id IS NOT NULL, false) AS \"following!\"\n            FROM comments c\n            JOIN articles a ON a.id = c.article_id\n            JOIN users u ON u.id = c.author_id\n            LEFT JOIN follows f ON f.followed_id = u.id AND f.follower_id = $1\n            WHERE a.slug = $2\n            ORDER BY c.created_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "body",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "author_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "author_bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "author_image",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "following!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      null
+    ]
+  },
+  "hash": "e591f8391f38eeee1416b7a4aa463c5f302f24a8266211136ccb71da2ccbe9ca"
+}

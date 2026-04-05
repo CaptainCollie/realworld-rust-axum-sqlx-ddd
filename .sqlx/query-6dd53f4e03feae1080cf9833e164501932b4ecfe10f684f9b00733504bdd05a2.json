@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE articles \n            SET \n                title = COALESCE($3, title),\n                slug = COALESCE($4, slug), -- Обновляем slug, если он пришел\n                description = COALESCE($5, description),\n                body = COALESCE($6, body),\n                updated_at = NOW()\n            WHERE slug = $1 AND author_id = $2\n            RETURNING id, slug\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "6dd53f4e03feae1080cf9833e164501932b4ecfe10f684f9b00733504bdd05a2"
+}

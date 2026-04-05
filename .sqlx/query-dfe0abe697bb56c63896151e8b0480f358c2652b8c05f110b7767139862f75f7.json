@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT \n                    u.username, u.bio, u.image,\n                    COALESCE(f.follower_id IS NOT NULL, false) AS \"following!\"\n                FROM users u\n                LEFT JOIN follows f ON f.followed_id = u.id AND f.follower_id = $1\n                WHERE u.username = $2\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "image",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "following!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      null
+    ]
+  },
+  "hash": "dfe0abe697bb56c63896151e8b0480f358c2652b8c05f110b7767139862f75f7"
+}
