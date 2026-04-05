@@ -1,6 +1,4 @@
 #![allow(dead_code)]
-use axum::body::Body;
-use axum::http::Request;
 use axum_test::TestServer;
 use chrono::DateTime;
 use chrono::Utc;
@@ -24,7 +22,6 @@ use std::sync::Arc;
 use std::sync::Once;
 use testcontainers::runners::AsyncRunner;
 use testcontainers_modules::postgres::Postgres;
-use tower_http::trace::TraceLayer;
 
 static INIT: Once = Once::new();
 
