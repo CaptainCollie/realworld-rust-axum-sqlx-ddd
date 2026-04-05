@@ -1,20 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
       - name: Install cargo-tarpaulin
         run: cargo install cargo-tarpaulin
 
-      - name: Generate Code Coverage
+      - name: Generate Coverage Data
         run: |
           cargo tarpaulin --ignore-tests --exclude-files src/main.rs src/lib.rs --out Lcov
-          PERCENT=$(cargo tarpaulin --ignore-tests --exclude-files src/main.rs src/lib.rs | grep -oP '\d+\.\d+(?=% coverage)' | tail -1)
+          PERCENT=$(cargo tarpaulin --ignore-tests --exclude-files src/main.rs src/lib.rs | grep -oP '\d+(\.\d+)?(?=% coverage)' | tail -1)
           echo "COVERAGE_PERCENT=$PERCENT" >> $GITHUB_ENV
         env:
-          auth: ${{ secrets.GIST_TOKEN }}
-          gistID: 02c38543ff4eaac85073d678de8da865
           SQLX_OFFLINE: true
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-key-12345' }}
 
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Update Gist Badge Data
+        uses: schneegans/dynamic-badges-action@v1.7.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: lcov.info
-          fail_ci_if_error: true
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: 02c38543ff4eaac85073d678de8da865
+          filename: coverage.json
+          label: Coverage
+          message: ${{ env.COVERAGE_PERCENT }}%
+          valColorRange: ${{ env.COVERAGE_PERCENT }}
+          maxColorRange: 100
+          minColorRange: 0
+
+      # - name: Upload to Codecov
+      #   uses: codecov/codecov-action@v4
+      #   continue-on-error: true
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: lcov.info
