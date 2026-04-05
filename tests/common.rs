@@ -25,7 +25,6 @@ use std::sync::Once;
 use testcontainers::runners::AsyncRunner;
 use testcontainers_modules::postgres::Postgres;
 use tower_http::trace::TraceLayer;
-use tracing::info_span;
 
 static INIT: Once = Once::new();
 
@@ -82,17 +81,7 @@ pub async fn setup_test_app() -> (TestServer, testcontainers::ContainerAsync<Pos
         profile_service,
         article_service,
         comment_service,
-    )
-    .layer(
-        TraceLayer::new_for_http().make_span_with(|request: &Request<Body>| {
-            tracing::info_span!(
-                "http_request",
-                method = %request.method(),
-                uri = %request.uri(),
-            )
-        }),
-    )
-    .with_state(state);
+    );
 
     let server = TestServer::new(app);
     (server, container)
