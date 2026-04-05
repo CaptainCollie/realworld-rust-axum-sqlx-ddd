@@ -35,6 +35,11 @@ jobs:
       - name: Run Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
+      - name: Install sqlx-cli
+        run: |
+          curl -L --proto '=https' --tlsv1.2 -sSf https://githubusercontent.com | bash
+          cargo binstall sqlx-cli --version 0.8.6 -y
+
       - name: Verify SQLx Metadata
         run: cargo sqlx prepare --check -- --all-targets
 
