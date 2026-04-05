@@ -27,7 +27,7 @@ pub async fn register(
         .register(payload.user.username, email, payload.user.password)
         .await
         .map_err(|e| {
-            tracing::error!("DETAILED ERROR: {:?}", e); // Это появится в консоли при тесте
+            tracing::error!("DETAILED ERROR: {:?}", e);
             e
         })?;
 
@@ -41,7 +41,6 @@ pub async fn register(
         },
     };
 
-    tracing::info!("{:?}", response);
     Ok((StatusCode::CREATED, axum::Json(response)))
 }
 
@@ -79,7 +78,6 @@ pub async fn get_current_user(
     auth_user: AuthUser,
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, AppError> {
-    tracing::info!("{}:?", auth_user.user_id);
     let (user, token) = state
         .user_service
         .get_current_user(auth_user.user_id)

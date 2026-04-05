@@ -157,7 +157,7 @@ impl UserRepository for PostgresUserRepository {
         .fetch_one(&self.pool)
         .await
         .map_err(|e| match e {
-            sqlx::Error::RowNotFound => AppError::UserNotFound,
+            sqlx::Error::RowNotFound => AppError::ProfileNotFound,
             _ => AppError::DatabaseError(e),
         })?;
 
@@ -189,12 +189,12 @@ impl UserRepository for PostgresUserRepository {
         .execute(&self.pool)
         .await
         .map_err(|e| match e {
-            sqlx::Error::RowNotFound => AppError::UserNotFound,
+            sqlx::Error::RowNotFound => AppError::ProfileNotFound,
             _ => AppError::DatabaseError(e),
         })?;
 
         if result.rows_affected() == 0 {
-            return Err(AppError::UserNotFound);
+            return Err(AppError::ProfileNotFound);
         }
 
         Ok(())

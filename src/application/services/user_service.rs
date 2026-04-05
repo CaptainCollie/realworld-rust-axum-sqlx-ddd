@@ -71,7 +71,7 @@ impl UserService {
             .user_repo
             .find_by_email(&email)
             .await?
-            .ok_or(AppError::UserNotFound)?;
+            .ok_or(AppError::ProfileNotFound)?;
 
         let parsed_hash = PasswordHash::new(&stored_hash.0).map_err(|e| {
             error!("Invalid hash format: {:?}", e);
@@ -113,7 +113,7 @@ impl UserService {
             .user_repo
             .find_by_id(user_id)
             .await?
-            .ok_or(AppError::UserNotFound)?;
+            .ok_or(AppError::ProfileNotFound)?;
 
         let token = self.generate_token(user_id)?;
         Ok((user, token))
@@ -128,7 +128,7 @@ impl UserService {
             .user_repo
             .find_by_id(user_id)
             .await?
-            .ok_or(AppError::UserNotFound)?;
+            .ok_or(AppError::ProfileNotFound)?;
 
         if let Some(email) = payload.email {
             if let Some(email) = email {

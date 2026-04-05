@@ -13,9 +13,6 @@ pub enum AppError {
     #[error("Validation failed")]
     ValidationError(HashMap<String, Vec<String>>),
 
-    #[error("User not found")]
-    UserNotFound,
-
     #[error("Profile not found")]
     ProfileNotFound,
 
@@ -70,11 +67,6 @@ impl IntoResponse for AppError {
             AppError::ProfileNotFound => (
                 StatusCode::NOT_FOUND,
                 Json(json!({ "errors": { "profile": ["not found"] } })),
-            )
-                .into_response(),
-            AppError::UserNotFound => (
-                StatusCode::NOT_FOUND,
-                Json(json!({ "errors": { "user": ["not found"] } })),
             )
                 .into_response(),
             AppError::ArticleNotFound => (

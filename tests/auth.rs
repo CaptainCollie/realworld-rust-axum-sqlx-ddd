@@ -50,7 +50,7 @@ async fn test_register_specification() {
 
 #[tokio::test]
 async fn test_login_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -83,7 +83,7 @@ async fn test_login_specification() {
 
 #[tokio::test]
 async fn test_get_current_user_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -106,7 +106,7 @@ async fn test_get_current_user_specification() {
 
 #[tokio::test]
 async fn test_update_user_bio_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -133,7 +133,7 @@ async fn test_update_user_bio_specification() {
 
 #[tokio::test]
 async fn test_verify_update_persisted_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -167,7 +167,7 @@ async fn test_verify_update_persisted_specification() {
 
 #[tokio::test]
 async fn test_update_user_bio_empty_normalization_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -190,7 +190,7 @@ async fn test_update_user_bio_empty_normalization_specification() {
 
 #[tokio::test]
 async fn test_verify_empty_string_normalization_persisted() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -219,7 +219,7 @@ async fn test_verify_empty_string_normalization_persisted() {
 
 #[tokio::test]
 async fn test_restore_bio_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -242,7 +242,7 @@ async fn test_restore_bio_specification() {
 
 #[tokio::test]
 async fn test_update_user_bio_to_null_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -265,7 +265,7 @@ async fn test_update_user_bio_to_null_specification() {
 
 #[tokio::test]
 async fn test_verify_null_bio_persisted_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -290,7 +290,7 @@ async fn test_verify_null_bio_persisted_specification() {
 
 #[tokio::test]
 async fn test_restore_bio_persisted_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -318,7 +318,7 @@ async fn test_restore_bio_persisted_specification() {
 
 #[tokio::test]
 async fn test_update_user_image_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -341,7 +341,7 @@ async fn test_update_user_image_specification() {
 
 #[tokio::test]
 async fn test_verify_image_update_persisted_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -370,7 +370,7 @@ async fn test_verify_image_update_persisted_specification() {
 
 #[tokio::test]
 async fn test_update_user_image_empty_normalization_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -393,7 +393,7 @@ async fn test_update_user_image_empty_normalization_specification() {
 
 #[tokio::test]
 async fn test_verify_image_empty_string_normalization_persisted() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -422,7 +422,7 @@ async fn test_verify_image_empty_string_normalization_persisted() {
 
 #[tokio::test]
 async fn test_update_user_image_to_null_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -455,7 +455,7 @@ async fn test_update_user_image_to_null_specification() {
 
 #[tokio::test]
 async fn test_update_username_and_email_specification() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -504,7 +504,7 @@ async fn test_update_username_and_email_specification() {
 
 #[tokio::test]
 async fn test_verify_username_email_update_persisted_with_new_token() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let uid = uuid::Uuid::new_v4().to_string()[..8].to_string();
     let main_user = TestUser::new(&server, "prof").await;
 
@@ -539,4 +539,34 @@ async fn test_verify_username_email_update_persisted_with_new_token() {
     let final_body = final_res.json::<serde_json::Value>();
     assert_eq!(final_body["user"]["username"], new_username);
     assert_eq!(final_body["user"]["email"], new_email);
+}
+
+#[tokio::test]
+async fn test_update_user_password_specification() {
+    let (server, _container) = setup_test_app().await;
+
+    let main_user = TestUser::new(&server, "prof").await;
+    let new_password = "new_password";
+
+    server
+        .put("/api/user")
+        .add_header("Authorization", format!("Token {}", main_user.token))
+        .json(&json!({
+            "user": {
+                "password": new_password
+            }
+        }))
+        .await
+        .assert_status_ok();
+
+    server
+        .post("/api/users/login")
+        .json(&json!({
+            "user": {
+                "email": main_user.email,
+                "password": new_password
+            }
+        }))
+        .await
+        .assert_status_ok();
 }

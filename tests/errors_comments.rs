@@ -1,7 +1,7 @@
 use reqwest::StatusCode;
 use serde_json::json;
 
-use crate::common::{TestArticle, TestUser, setup_test_app};
+use crate::common::{TestArticle, TestComment, TestUser, setup_test_app};
 
 mod common;
 
@@ -102,5 +102,28 @@ async fn test_delete_comment_not_found_scenarios() {
     res_cmt.assert_status(StatusCode::NOT_FOUND);
     res_cmt.assert_json_contains(&json!({
         "errors": { "comment": ["not found"] }
+    }));
+}
+
+#[tokio::test]
+async fn test_error_comment_forbidden() {
+    let (server, _container) = setup_test_app().await;
+
+    let author = TestUser::new(&server, "author").await;
+    let hacker = TestUser::new(&server, "hacker").await;
+    let article = TestArticle::new(&server, "T", "D", "B", vec![], &author.token).await;
+    let comment = TestComment::new(&server, &article.slug, "Hello", &author.token).await;
+
+    let response = server
+        .delete(&format!(
+            "/api/articles/{}/comments/{}",
+            article.slug, comment.id
+        ))
+        .add_header("Authorization", format!("Token {}", hacker.token))
+        .await;
+
+    response.assert_status(StatusCode::FORBIDDEN);
+    response.assert_json_contains(&json!({
+        "errors": { "comment": ["forbidden"] }
     }));
 }

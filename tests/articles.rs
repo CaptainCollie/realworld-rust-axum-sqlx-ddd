@@ -9,7 +9,7 @@ mod common;
 #[tokio::test]
 async fn test_create_article_with_tags_specification() {
     let (server, _container) = setup_test_app().await;
-    let user = common::TestUser::new(&server, "art").await;
+    let user = TestUser::new(&server, "art").await;
 
     let title = format!("Test Article {}", user.username);
     let tags = vec!["tag1".to_string(), "tag2".to_string()];
@@ -424,10 +424,10 @@ async fn test_update_article_body_specification() {
 
 #[tokio::test]
 async fn test_article_tags_update_specification() {
-    let (server, _container) = common::setup_test_app().await;
-    let user = common::TestUser::new(&server, "tagmaster").await;
+    let (server, _container) = setup_test_app().await;
+    let user = TestUser::new(&server, "tagmaster").await;
 
-    let article = common::TestArticle::new(
+    let article = TestArticle::new(
         &server,
         "Title",
         "Desc",
@@ -469,10 +469,10 @@ async fn test_article_tags_update_specification() {
 
 #[tokio::test]
 async fn test_delete_article_specification() {
-    let (server, _container) = common::setup_test_app().await;
-    let user = common::TestUser::new(&server, "deleter").await;
+    let (server, _container) = setup_test_app().await;
+    let user = TestUser::new(&server, "deleter").await;
 
-    let article = common::TestArticle::new(
+    let article = TestArticle::new(
         &server,
         "To Be Deleted",
         "desc",

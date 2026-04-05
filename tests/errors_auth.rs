@@ -2,11 +2,11 @@ mod common;
 
 use reqwest::StatusCode;
 
-use crate::common::TestUser;
+use crate::common::{TestUser, setup_test_app};
 
 #[tokio::test]
 async fn test_register_empty_username_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let response = server
         .post("/api/users")
@@ -30,7 +30,7 @@ async fn test_register_empty_username_error() {
 
 #[tokio::test]
 async fn test_register_empty_email_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let uid = uuid::Uuid::new_v4().to_string()[..8].to_string();
 
     let response = server
@@ -55,7 +55,7 @@ async fn test_register_empty_email_error() {
 
 #[tokio::test]
 async fn test_register_empty_password_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let uid = uuid::Uuid::new_v4().to_string()[..8].to_string();
 
     let response = server
@@ -80,7 +80,7 @@ async fn test_register_empty_password_error() {
 
 #[tokio::test]
 async fn test_register_duplicate_username() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -105,7 +105,7 @@ async fn test_register_duplicate_username() {
 
 #[tokio::test]
 async fn test_register_duplicate_email() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -130,7 +130,7 @@ async fn test_register_duplicate_email() {
 
 #[tokio::test]
 async fn test_login_empty_email_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let response = server
         .post("/api/users/login")
@@ -153,7 +153,7 @@ async fn test_login_empty_email_error() {
 
 #[tokio::test]
 async fn test_login_empty_password_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let uid = uuid::Uuid::new_v4().to_string()[..8].to_string();
 
     let response = server
@@ -177,7 +177,7 @@ async fn test_login_empty_password_error() {
 
 #[tokio::test]
 async fn test_login_wrong_password_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -201,7 +201,7 @@ async fn test_login_wrong_password_error() {
 
 #[tokio::test]
 async fn test_login_without_token_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
 
     let response = server.get("/api/user").await;
 
@@ -233,7 +233,7 @@ async fn test_login_without_token_error() {
 
 #[tokio::test]
 async fn test_update_email_to_empty_string_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -251,7 +251,7 @@ async fn test_update_email_to_empty_string_error() {
 
 #[tokio::test]
 async fn test_update_username_to_empty_string_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -269,7 +269,7 @@ async fn test_update_username_to_empty_string_error() {
 
 #[tokio::test]
 async fn test_update_password_to_empty_string_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -287,7 +287,7 @@ async fn test_update_password_to_empty_string_error() {
 
 #[tokio::test]
 async fn test_update_email_to_null_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -305,7 +305,7 @@ async fn test_update_email_to_null_error() {
 
 #[tokio::test]
 async fn test_update_username_to_null_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server
@@ -323,7 +323,7 @@ async fn test_update_username_to_null_error() {
 
 #[tokio::test]
 async fn test_update_password_to_null_error() {
-    let (server, _container) = common::setup_test_app().await;
+    let (server, _container) = setup_test_app().await;
     let main_user = TestUser::new(&server, "prof").await;
 
     let response = server

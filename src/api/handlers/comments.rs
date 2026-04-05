@@ -78,7 +78,7 @@ pub async fn get_comments(
 
 pub async fn delete_comment(
     State(state): State<AppState>,
-    Path((slug, comment_id)): Path<(String, i32)>, // Извлекаем оба параметра из пути
+    Path((slug, comment_id)): Path<(String, i32)>,
     auth_user: AuthUser,
 ) -> Result<impl IntoResponse, AppError> {
     state
