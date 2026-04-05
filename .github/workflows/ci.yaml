@@ -19,14 +19,32 @@ jobs:
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
+      
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        env:
+          SQLX_OFFLINE: true
+
+      - name: Check Formatting
+        run: cargo fmt --all -- --check
+
+      - name: Security Audit
+        run: |
+          cargo install cargo-audit
+          cargo audit
+
+      - name: Verify SQLx Metadata
+        run: cargo sqlx prepare --check -- --all-targets
+        env:
+          SQLX_OFFLINE: true
 
       - name: Install cargo-tarpaulin
         run: cargo install cargo-tarpaulin
 
       - name: Generate Coverage Data
         run: |
-          cargo tarpaulin --jobs 1 --ignore-tests --exclude-files src/main.rs src/lib.rs --out Lcov
-          PERCENT=$(cargo tarpaulin --jobs 1 --ignore-tests --exclude-files src/main.rs src/lib.rs | grep -oP '\d+(\.\d+)?(?=% coverage)' | tail -1)
+          cargo tarpaulin --jobs 1 --ignore-tests --exclude-files src/main.rs src/lib.rs --out Lcov | tee tarpaulin_log.txt
+          PERCENT=$(grep -oP '\d+(\.\d+)?(?=% coverage)' tarpaulin_log.txt | tail -1)
           echo "COVERAGE_PERCENT=$PERCENT" >> $GITHUB_ENV
         env:
           SQLX_OFFLINE: true
