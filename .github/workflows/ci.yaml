@@ -1,55 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
 jobs:
-  build:
-    name: Build Project
+  lint-and-audit:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      
+      - name: Check Formatting
+        run: cargo fmt --all -- --check
+
+      - name: Security Audit
+        run: |
+          cargo install cargo-audit
+          cargo audit
+
+  build-and-test:
+    needs: lint-and-audit
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      SQLX_OFFLINE: true
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      
-      - name: Build Binary
-        run: cargo build --all-targets --all-features
-        env:
-          SQLX_OFFLINE: true
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: target-folder
-          path: |
-            target
-            Cargo.lock
-          retention-days: 1
-
-  quality-and-tests:
-    name: Checks & Coverage
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-      
-      - name: Download Build Artifacts
-        uses: actions/artifact@v4
-        with:
-          name: target-folder
-
-      - name: Check Formatting
-        run: cargo fmt --all -- --check
 
       - name: Run Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
-        env:
-          SQLX_OFFLINE: true
+
+      - name: Verify SQLx Metadata
+        run: cargo sqlx prepare --check -- --all-targets
 
       - name: Install cargo-tarpaulin
         run: cargo install cargo-tarpaulin
 
-      - name: Generate Coverage
+      - name: Generate Coverage Data
         run: |
           cargo tarpaulin --jobs 1 --ignore-tests --exclude-files src/main.rs src/lib.rs --out Lcov | tee tarpaulin_log.txt
+          PERCENT=$(grep -oP '\d+(\.\d+)?(?=% coverage)' tarpaulin_log.txt | tail -1)
+          echo "COVERAGE_PERCENT=$PERCENT" >> $GITHUB_ENV
         env:
-          SQLX_OFFLINE: true
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-key-12345' }}
 
       - name: Update Gist Badge Data
@@ -57,16 +54,9 @@ jobs:
         with:
           auth: ${{ secrets.GIST_TOKEN }}
           gistID: 02c38543ff4eaac85073d678de8da865
-          filename: gistfile1.txt
+          filename: coverage.json
           label: Coverage
           message: ${{ env.COVERAGE_PERCENT }}%
           valColorRange: ${{ env.COVERAGE_PERCENT }}
           maxColorRange: 100
           minColorRange: 0
-
-      # - name: Upload to Codecov
-      #   uses: codecov/codecov-action@v4
-      #   continue-on-error: true
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     files: lcov.info
