@@ -36,7 +36,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         )
         .init();
 
-    jsonwebtoken::crypto::rust_crypto::DEFAULT_PROVIDER
+    jsonwebtoken::crypto::aws_lc::DEFAULT_PROVIDER
         .install_default()
         .expect("JsonWebToken provider failed to install");
 

@@ -19,7 +19,7 @@ jobs:
       - name: Security Audit
         run: |
           cargo install cargo-audit
-          cargo audit
+          cargo audit --ignore RUSTSEC-2023-0071 # No fixed upgrade is available!
 
   build-and-test:
     needs: lint-and-audit

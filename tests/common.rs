@@ -32,7 +32,9 @@ pub async fn setup_test_app() -> (TestServer, testcontainers::ContainerAsync<Pos
             .with_test_writer()
             .try_init();
 
-        let _ = jsonwebtoken::crypto::rust_crypto::DEFAULT_PROVIDER.install_default();
+        jsonwebtoken::crypto::aws_lc::DEFAULT_PROVIDER
+            .install_default()
+            .expect("JsonWebToken provider failed to install");
     });
 
     let container = Postgres::default().start().await.unwrap();

@@ -96,7 +96,6 @@ impl UserService {
             sub: user_id,
             exp: expiration.timestamp(),
         };
-
         encode(
             &Header::default(),
             &claims,
