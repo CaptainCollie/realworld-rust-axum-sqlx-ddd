@@ -5,7 +5,6 @@ use crate::common::{TestArticle, TestUser, setup_test_app};
 
 mod common;
 
-
 #[tokio::test]
 async fn test_comment_actions_no_auth() {
     let (server, _container) = setup_test_app().await;
@@ -20,9 +19,7 @@ async fn test_comment_actions_no_auth() {
         "errors": { "token": ["is missing"] }
     }));
 
-    let delete_res = server
-        .delete("/api/articles/any-slug/comments/1")
-        .await;
+    let delete_res = server.delete("/api/articles/any-slug/comments/1").await;
 
     delete_res.assert_status(StatusCode::UNAUTHORIZED);
     delete_res.assert_json_contains(&json!({
@@ -33,7 +30,7 @@ async fn test_comment_actions_no_auth() {
 #[tokio::test]
 async fn test_comment_validation_and_not_found() {
     let (server, _container) = setup_test_app().await;
-    
+
     let user = TestUser::new(&server, "ec").await;
     let article = TestArticle::new(&server, "Err Art", "D", "B", vec![], &user.token).await;
 

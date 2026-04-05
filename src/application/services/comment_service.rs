@@ -64,7 +64,7 @@ impl CommentService {
             .get_by_slug(slug, None)
             .await?
             .ok_or(AppError::ArticleNotFound)?;
-    
+
         let author_id = self
             .comment_repo
             .get_comment_author_id(comment_id)
