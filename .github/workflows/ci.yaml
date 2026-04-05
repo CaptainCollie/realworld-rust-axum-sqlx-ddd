@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   test-and-coverage:
@@ -23,8 +23,8 @@ jobs:
 
       - name: Generate Coverage Data
         run: |
-          cargo tarpaulin --ignore-tests --exclude-files src/main.rs src/lib.rs --out Lcov
-          PERCENT=$(cargo tarpaulin --ignore-tests --exclude-files src/main.rs src/lib.rs | grep -oP '\d+(\.\d+)?(?=% coverage)' | tail -1)
+          cargo tarpaulin --jobs 1 --ignore-tests --exclude-files src/main.rs src/lib.rs --out Lcov
+          PERCENT=$(cargo tarpaulin --jobs 1 --ignore-tests --exclude-files src/main.rs src/lib.rs | grep -oP '\d+(\.\d+)?(?=% coverage)' | tail -1)
           echo "COVERAGE_PERCENT=$PERCENT" >> $GITHUB_ENV
         env:
           SQLX_OFFLINE: true
