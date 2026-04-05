@@ -12,13 +12,13 @@ jobs:
         FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@v5
       
       - name: Run Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
@@ -51,7 +51,7 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-key-12345' }}
 
       - name: Update Gist Badge Data
-        uses: schneegans/dynamic-badges-action@v1.7.0
+        uses: schneegans/dynamic-badges-action@v1.8.0
         with:
           auth: ${{ secrets.GIST_TOKEN }}
           gistID: 02c38543ff4eaac85073d678de8da865
