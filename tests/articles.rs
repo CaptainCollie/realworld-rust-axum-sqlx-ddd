@@ -80,7 +80,7 @@ async fn test_create_article_with_tags_specification() {
     assert!(article.tag_list.contains(&tags[0]));
     assert!(article.tag_list.contains(&tags[1]));
 
-    assert_eq!(article.favorited, false);
+    assert!(!article.favorited);
     assert_eq!(article.favorites_count, 0);
     assert_eq!(article.author.username, user.username);
 
@@ -105,7 +105,7 @@ async fn test_list_articles_specification() {
     )
     .await;
 
-    let response = server.get(&format!("/api/articles")).await;
+    let response = server.get("/api/articles").await;
 
     response.assert_status_ok();
 
