@@ -1,5 +1,5 @@
 use reqwest::StatusCode;
-use serde_json::{Value, json};
+use serde_json::json;
 
 use crate::common::{TestUser, setup_test_app};
 
