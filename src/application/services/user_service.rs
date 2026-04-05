@@ -8,7 +8,7 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
 use serde::{Deserialize, Serialize};
 use serde_email::Email;
-use tracing::error;
+use tracing::{error, instrument};
 use uuid::Uuid;
 
 use crate::{
@@ -41,6 +41,7 @@ impl UserService {
         }
     }
 
+    #[instrument(skip(self, password_raw), fields(username = %username, email = %email))]
     pub async fn register(
         &self,
         username: String,
@@ -62,6 +63,7 @@ impl UserService {
         Ok((user, token))
     }
 
+    #[instrument(skip(self, password_raw), fields(email = %email))]
     pub async fn login(
         &self,
         email: String,
@@ -90,6 +92,7 @@ impl UserService {
         Ok((user, token))
     }
 
+    #[instrument(skip(self))]
     fn generate_token(&self, user_id: uuid::Uuid) -> Result<String, AppError> {
         let expiration = Utc::now() + Duration::hours(self.jwt_exp_hours as i64);
         let claims = Claims {
@@ -108,6 +111,7 @@ impl UserService {
         &self.jwt_secret
     }
 
+    #[instrument(skip(self))]
     pub async fn get_current_user(&self, user_id: Uuid) -> Result<(User, String), AppError> {
         let (user, _) = self
             .user_repo
@@ -119,6 +123,7 @@ impl UserService {
         Ok((user, token))
     }
 
+    #[instrument(skip(self, payload), fields(user_id = %user_id))]
     pub async fn update_user(
         &self,
         user_id: Uuid,

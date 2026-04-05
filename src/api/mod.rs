@@ -22,9 +22,27 @@ use crate::{
 };
 use axum::{
     Router,
+    http::Request,
     routing::{delete, get, post},
 };
 use std::sync::Arc;
+use tower::ServiceBuilder;
+use tower_http::ServiceBuilderExt;
+use tower_http::{
+    request_id::{MakeRequestId, RequestId},
+    trace::TraceLayer,
+};
+use uuid::Uuid;
+
+#[derive(Clone, Copy)]
+struct MyMakeRequestId;
+
+impl MakeRequestId for MyMakeRequestId {
+    fn make_request_id<B>(&mut self, _request: &axum::http::Request<B>) -> Option<RequestId> {
+        let request_id = Uuid::new_v4().to_string().parse().ok()?;
+        Some(RequestId::new(request_id))
+    }
+}
 
 pub fn create_router(
     user_service: Arc<UserService>,
@@ -63,6 +81,27 @@ pub fn create_router(
             article_service,
             comment_service,
         })
+        .layer(
+            ServiceBuilder::new()
+                .set_x_request_id(MyMakeRequestId)
+                .layer(
+                    TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
+                        let request_id = request
+                            .extensions()
+                            .get::<RequestId>()
+                            .map(|ri| ri.header_value().to_str().unwrap_or_default())
+                            .unwrap_or_default();
+
+                        tracing::info_span!(
+                            "http_request",
+                            method = %request.method(),
+                            uri = %request.uri(),
+                            request_id = %request_id,
+                        )
+                    }),
+                )
+                .propagate_x_request_id(),
+        )
 }
 
 #[derive(Clone)]

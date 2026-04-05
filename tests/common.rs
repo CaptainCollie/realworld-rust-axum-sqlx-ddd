@@ -84,35 +84,15 @@ pub async fn setup_test_app() -> (TestServer, testcontainers::ContainerAsync<Pos
         comment_service,
     )
     .layer(
-        TraceLayer::new_for_http()
-            .make_span_with(|request: &Request<Body>| {
-                info_span!(
-                    "http_request",
-                    method = %request.method(),
-                    uri = %request.uri(),
-                )
-            })
-            .on_request(|request: &Request<Body>, _span: &tracing::Span| {
-                tracing::info!(
-                    "--> Started {} {} {:?}",
-                    request.method(),
-                    request.uri(),
-                    request.body()
-                );
-            })
-            .on_response(
-                |response: &axum::http::Response<Body>,
-                 latency: std::time::Duration,
-                 _span: &tracing::Span| {
-                    tracing::info!(
-                        "<-- Finished with {} in {:?}; {:?}",
-                        response.status(),
-                        latency,
-                        response.body()
-                    );
-                },
-            ),
-    );
+        TraceLayer::new_for_http().make_span_with(|request: &Request<Body>| {
+            tracing::info_span!(
+                "http_request",
+                method = %request.method(),
+                uri = %request.uri(),
+            )
+        }),
+    )
+    .with_state(state);
 
     let server = TestServer::new(app);
     (server, container)

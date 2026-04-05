@@ -2,6 +2,7 @@ use crate::api::dto::CreateCommentInner;
 use crate::domain::repositories::ArticleRepository;
 use crate::domain::{errors::AppError, models::comment::Comment, repositories::CommentRepository};
 use std::sync::Arc;
+use tracing::instrument;
 use uuid::Uuid;
 
 pub struct CommentService {
@@ -20,6 +21,7 @@ impl CommentService {
         }
     }
 
+    #[instrument(skip(self, dto), fields(slug = %slug, author_id = %author_id))]
     pub async fn add_comment(
         &self,
         slug: &str,
@@ -37,6 +39,7 @@ impl CommentService {
             .await
     }
 
+    #[instrument(skip(self), fields(slug = %slug, viewer = ?viewer_id))]
     pub async fn get_comments(
         &self,
         slug: &str,
@@ -53,6 +56,7 @@ impl CommentService {
             .await
     }
 
+    #[instrument(skip(self), fields(slug = %slug, comment_id = %comment_id, user_id = %current_user_id))]
     pub async fn delete_comment(
         &self,
         slug: &str,

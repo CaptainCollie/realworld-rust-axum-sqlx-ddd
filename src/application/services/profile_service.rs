@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use tracing::instrument;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -24,6 +25,7 @@ impl ProfileService {
         }
     }
 
+    #[instrument(skip(self), fields(username = %username, viewer = ?viewer_id))]
     pub async fn get_profile(
         &self,
         username: &str,
@@ -35,6 +37,7 @@ impl ProfileService {
             .ok_or(AppError::ProfileNotFound)
     }
 
+    #[instrument(skip(self), fields(target = %target_username, follower = %follower_id))]
     pub async fn follow(
         &self,
         target_username: &str,
@@ -61,6 +64,7 @@ impl ProfileService {
             .await
     }
 
+    #[instrument(skip(self), fields(target = %target_username, follower = %follower_id))]
     pub async fn unfollow(
         &self,
         target_username: &str,

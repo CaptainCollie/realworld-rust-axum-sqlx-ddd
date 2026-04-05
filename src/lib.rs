@@ -7,16 +7,13 @@ use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use axum::body::Body;
-use axum::http::Request;
 use infrastructure::config::Config;
 use infrastructure::db::repositories::user_repository::PostgresUserRepository;
 
 use application::services::user_service::UserService;
 use infrastructure::db::init_pool;
 use tokio::net::TcpListener;
-use tower_http::trace::TraceLayer;
-use tracing::info_span;
+use tracing_subscriber::{EnvFilter, fmt};
 
 use crate::application::services::article_service::ArticleService;
 use crate::application::services::comment_service::CommentService;
@@ -27,20 +24,22 @@ use crate::domain::repositories::{
 use crate::infrastructure::db::repositories::article_repository::PostgresArticleRepository;
 use crate::infrastructure::db::repositories::comment_repository::PostgresCommentRepository;
 use crate::infrastructure::db::repositories::profile_repository::PostgresProfileRepository;
+use tracing_subscriber::prelude::*;
 
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "info,sqlx=warn".into()),
-        )
+    let config = Config::from_env().expect("Failed to load configuration");
+
+    let filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(&config.rust_log));
+
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(fmt::layer().with_target(false))
         .init();
 
     jsonwebtoken::crypto::aws_lc::DEFAULT_PROVIDER
         .install_default()
         .expect("JsonWebToken provider failed to install");
-
-    let config = Config::from_env().expect("Failed to load configuration");
 
     let pool = init_pool(&config).await?;
 
@@ -79,36 +78,6 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         profile_service,
         article_service,
         comment_service,
-    )
-    .layer(
-        TraceLayer::new_for_http()
-            .make_span_with(|request: &Request<Body>| {
-                info_span!(
-                    "http_request",
-                    method = %request.method(),
-                    uri = %request.uri(),
-                )
-            })
-            .on_request(|request: &Request<Body>, _span: &tracing::Span| {
-                tracing::info!(
-                    "--> Started {} {} {:?}",
-                    request.method(),
-                    request.uri(),
-                    request.body()
-                );
-            })
-            .on_response(
-                |response: &axum::http::Response<Body>,
-                 latency: std::time::Duration,
-                 _span: &tracing::Span| {
-                    tracing::info!(
-                        "<-- Finished with {} in {:?}; {:?}",
-                        response.status(),
-                        latency,
-                        response.body()
-                    );
-                },
-            ),
     );
 
     let addr = SocketAddr::from(([0, 0, 0, 0], config.server_port));

@@ -13,6 +13,8 @@ pub struct Config {
 
     pub jwt_secret: String,
     pub jwt_exp_hours: u64,
+
+    pub rust_log: String,
 }
 
 impl Config {
