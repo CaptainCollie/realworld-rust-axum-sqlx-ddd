@@ -1,4 +1,4 @@
-![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/CaptainCollie/02c38543ff4eaac85073d678de8da865/raw/983baa8c490396a214300409601dd06fa97b1ba5/coverage.json)
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/CaptainCollie/02c38543ff4eaac85073d678de8da865/raw/coverage.json)
 # 🦀 RealWorld Rust (Axum + SQLx)
 
 A high-performance, strictly typed implementation of the [RealWorld](https://github.com/realworld-apps/realworld/) backend specification.
