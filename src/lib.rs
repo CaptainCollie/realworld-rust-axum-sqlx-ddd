@@ -5,7 +5,7 @@ pub mod infrastructure;
 
 use std::env;
 use std::net::SocketAddr;
-use std::sync::Arc;
+use std::sync::{Arc, Once};
 
 use infrastructure::config::Config;
 use infrastructure::db::repositories::user_repository::PostgresUserRepository;
@@ -27,27 +27,37 @@ use crate::infrastructure::db::repositories::comment_repository::PostgresComment
 use crate::infrastructure::db::repositories::profile_repository::PostgresProfileRepository;
 use tracing_subscriber::prelude::*;
 
+static INIT: Once = Once::new();
+
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::from_env().expect("Failed to load configuration");
 
-    let filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(&config.rust_log));
+    INIT.call_once(|| {
+        let filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(&config.rust_log));
 
-    let registry = tracing_subscriber::registry().with(filter);
+        let registry = tracing_subscriber::registry().with(filter);
 
-    if config.is_docker {
-        registry.with(fmt::layer().json()).init();
-    } else {
-        registry.with(fmt::layer().with_target(false)).init();
-    }
+        if config.is_docker {
+            registry.with(fmt::layer().json()).init();
+        } else {
+            registry.with(fmt::layer().with_target(false)).init();
+        }
+
+        jsonwebtoken::crypto::aws_lc::DEFAULT_PROVIDER
+            .install_default()
+            .expect("JsonWebToken provider failed to install");
+    });
 
     let recorder_handle = PrometheusBuilder::new()
         .install_recorder()
-        .expect("failed to install prometheus recorder");
-
-    jsonwebtoken::crypto::aws_lc::DEFAULT_PROVIDER
-        .install_default()
-        .expect("JsonWebToken provider failed to install");
+        .unwrap_or_else(|_| {
+            PrometheusBuilder::new()
+                .build()
+                .expect("failed to build prometheus exporter")
+                .0
+                .handle()
+        });
 
     let pool = init_pool(&config).await?;
 
