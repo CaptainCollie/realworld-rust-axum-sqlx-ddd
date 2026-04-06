@@ -15,6 +15,9 @@ pub struct Config {
     pub jwt_exp_hours: u64,
 
     pub rust_log: String,
+
+    #[serde(default)]
+    pub is_docker: bool,
 }
 
 impl Config {

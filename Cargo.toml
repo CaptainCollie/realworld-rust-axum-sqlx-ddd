@@ -11,6 +11,8 @@ chrono = { version = "0.4.44", features = ["serde"] }
 dotenvy = "0.15.7"
 envy = "0.4.2"
 jsonwebtoken = { version = "10.3.0", features = ["aws_lc_rs"] }
+metrics = "0.24.3"
+metrics-exporter-prometheus = "0.18.1"
 reqwest = { version = "0.13.2", features = ["json"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde-email = "3.2.0"

@@ -2,6 +2,7 @@
 use axum_test::TestServer;
 use chrono::DateTime;
 use chrono::Utc;
+use metrics_exporter_prometheus::PrometheusBuilder;
 use realworld_rust_app::api::create_router;
 use realworld_rust_app::application::services::article_service::ArticleService;
 use realworld_rust_app::application::services::comment_service::CommentService;
@@ -36,6 +37,10 @@ pub async fn setup_test_app() -> (TestServer, testcontainers::ContainerAsync<Pos
             .install_default()
             .expect("JsonWebToken provider failed to install");
     });
+
+    let recorder_handle = PrometheusBuilder::new()
+        .install_recorder()
+        .expect("failed to install prometheus recorder");
 
     let container = Postgres::default().start().await.unwrap();
     let port = container.get_host_port_ipv4(5432).await.unwrap();
@@ -78,6 +83,7 @@ pub async fn setup_test_app() -> (TestServer, testcontainers::ContainerAsync<Pos
         profile_service,
         article_service,
         comment_service,
+        recorder_handle,
     );
 
     let server = TestServer::new(app);

@@ -12,6 +12,7 @@ use infrastructure::db::repositories::user_repository::PostgresUserRepository;
 
 use application::services::user_service::UserService;
 use infrastructure::db::init_pool;
+use metrics_exporter_prometheus::PrometheusBuilder;
 use tokio::net::TcpListener;
 use tracing_subscriber::{EnvFilter, fmt};
 
@@ -32,10 +33,17 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(&config.rust_log));
 
-    tracing_subscriber::registry()
-        .with(filter)
-        .with(fmt::layer().with_target(false))
-        .init();
+    let registry = tracing_subscriber::registry().with(filter);
+
+    if config.is_docker {
+        registry.with(fmt::layer().json()).init();
+    } else {
+        registry.with(fmt::layer().with_target(false)).init();
+    }
+
+    let recorder_handle = PrometheusBuilder::new()
+        .install_recorder()
+        .expect("failed to install prometheus recorder");
 
     jsonwebtoken::crypto::aws_lc::DEFAULT_PROVIDER
         .install_default()
@@ -78,6 +86,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         profile_service,
         article_service,
         comment_service,
+        recorder_handle,
     );
 
     let addr = SocketAddr::from(([0, 0, 0, 0], config.server_port));

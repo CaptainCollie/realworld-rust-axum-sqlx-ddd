@@ -22,10 +22,17 @@ use crate::{
 };
 use axum::{
     Router,
+    body::Body,
+    extract::MatchedPath,
     http::Request,
+    middleware::Next,
+    response::IntoResponse,
     routing::{delete, get, post},
 };
+use metrics::{counter, histogram};
+use metrics_exporter_prometheus::PrometheusHandle;
 use std::sync::Arc;
+use tokio::time::Instant;
 use tower::ServiceBuilder;
 use tower_http::ServiceBuilderExt;
 use tower_http::{
@@ -49,8 +56,15 @@ pub fn create_router(
     profile_service: Arc<ProfileService>,
     article_service: Arc<ArticleService>,
     comment_service: Arc<CommentService>,
+    recorder_handle: PrometheusHandle,
 ) -> Router {
+    let metrics_router = Router::new().route(
+        "/metrics",
+        get(move || std::future::ready(recorder_handle.render())),
+    );
+
     Router::new()
+        .merge(metrics_router)
         .route("/api/users", post(register))
         .route("/api/users/login", post(login))
         .route("/api/user", get(get_current_user).put(update_current_user))
@@ -85,21 +99,28 @@ pub fn create_router(
             ServiceBuilder::new()
                 .set_x_request_id(MyMakeRequestId)
                 .layer(
-                    TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
-                        let request_id = request
-                            .extensions()
-                            .get::<RequestId>()
-                            .map(|ri| ri.header_value().to_str().unwrap_or_default())
-                            .unwrap_or_default();
+                    TraceLayer::new_for_http()
+                        .make_span_with(|request: &Request<_>| {
+                            let request_id = request
+                                .extensions()
+                                .get::<RequestId>()
+                                .map(|ri| ri.header_value().to_str().unwrap_or_default())
+                                .unwrap_or_default();
 
-                        tracing::info_span!(
-                            "http_request",
-                            method = %request.method(),
-                            uri = %request.uri(),
-                            request_id = %request_id,
-                        )
-                    }),
+                            tracing::info_span!(
+                                "http_request",
+                                method = %request.method(),
+                                uri = %request.uri(),
+                                request_id = %request_id,
+                            )
+                        })
+                        .on_response(
+                            tower_http::trace::DefaultOnResponse::new()
+                                .level(tracing::Level::INFO)
+                                .latency_unit(tower_http::LatencyUnit::Millis),
+                        ),
                 )
+                .layer(axum::middleware::from_fn(track_metrics))
                 .propagate_x_request_id(),
         )
 }
@@ -116,4 +137,26 @@ impl AuthConfig for AppState {
     fn jwt_secret(&self) -> &str {
         self.user_service.jwt_secret()
     }
+}
+
+async fn track_metrics(req: Request<Body>, next: Next) -> impl IntoResponse {
+    let start = Instant::now();
+    let path = if let Some(matched_path) = req.extensions().get::<MatchedPath>() {
+        matched_path.as_str().to_owned()
+    } else {
+        "unknown_route".to_owned()
+    };
+    let method = req.method().to_string();
+
+    let response = next.run(req).await;
+
+    let latency = start.elapsed().as_secs_f64();
+    let status = response.status().as_u16().to_string();
+
+    counter!("http_requests_total", "method" => method.clone(), "path" => path.clone(), "status" => status.clone())
+        .increment(1);
+    histogram!("http_request_duration_seconds", "method" => method.clone(), "path" => path.clone())
+        .record(latency);
+
+    response
 }
