@@ -40,7 +40,13 @@ pub async fn setup_test_app() -> (TestServer, testcontainers::ContainerAsync<Pos
 
     let recorder_handle = PrometheusBuilder::new()
         .install_recorder()
-        .expect("failed to install prometheus recorder");
+        .unwrap_or_else(|_| {
+            PrometheusBuilder::new()
+                .build()
+                .expect("failed to build prometheus exporter")
+                .0
+                .handle()
+        });
 
     let container = Postgres::default().start().await.unwrap();
     let port = container.get_host_port_ipv4(5432).await.unwrap();
